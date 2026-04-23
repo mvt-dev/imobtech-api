@@ -1,0 +1,24 @@
+import { Router } from 'express';
+import { create } from '../service/client.js';
+
+const router = Router();
+
+router.post('/', async (req, res) => {
+  try {
+    const client = await create(req.body);
+    return res.status(201).json(client);
+  } catch (error) {
+    if (error.message === 'INVALID-DATA') {
+      console.warn(error);
+      return res.status(422).json({ error: error.message, message: error.fields });
+    } else if (error.message === 'DUPLICATED') {
+      console.warn(error);
+      return res.status(409).json({ error: error.message, message: 'Client already exists with document ' + req.body.document });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'INTERNAL' });
+    }
+  }
+});
+
+export default router;
