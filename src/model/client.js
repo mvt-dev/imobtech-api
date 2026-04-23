@@ -15,7 +15,11 @@ export async function findAll(filters) {
       .orWhereILike('email', search)
       .orWhereILike('phone', search);
   }
-  return query;
+  const [{ count }] = await query.clone().count();
+  const total = Number(count);
+  const offset = (filters.page - 1) * filters.page_size;
+  const data = await query.orderBy('name').limit(filters.page_size).offset(offset);
+  return { data, total, page: filters.page, page_size: filters.page_size };
 }
 
 export async function findById(id) {

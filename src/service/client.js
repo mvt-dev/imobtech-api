@@ -22,6 +22,8 @@ export async function findAll(query) {
     status: z.enum([CLIENT_STATUS.ACTIVE, CLIENT_STATUS.INACTIVE, CLIENT_STATUS.REMOVED]).default(CLIENT_STATUS.ACTIVE),
     type: z.enum([CLIENT_TYPE.PF, CLIENT_TYPE.PJ]).optional(),
     search: z.string().trim().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    page_size: z.coerce.number().int().min(1).max(50).default(10),
   }).safeParse(query);
   if (!validation.success) {
     const error = new Error(ERROR.INVALID_DATA);
