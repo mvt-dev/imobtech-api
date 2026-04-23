@@ -50,3 +50,11 @@ export async function update(client) {
   }
   return clientData;
 }
+
+export async function remove(id) {
+  const returning = await db('client').where({ id }).update({
+    status: 'REMOVED',
+    updated_at: new Date(),
+  });
+  if (!returning) throw new Error('NOT-FOUND');
+}

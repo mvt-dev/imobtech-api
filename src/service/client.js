@@ -4,6 +4,7 @@ import {
   findById as dbFindById,
   create as dbCreate,
   update as dbUpdate,
+  remove as dbRemove,
 } from '../model/client.js';
 
 const baseClientFields = {
@@ -68,4 +69,14 @@ export async function update(client) {
   }
   const clientData = await dbUpdate(validation.data);
   return clientData;
+}
+
+export async function remove(id) {
+  const validation = z.uuid().safeParse(id);
+  if (!validation.success) {
+    const error = new Error('INVALID-DATA');
+    error.fields = validation.error.issues[0].message;
+    throw error;
+  }
+  await dbRemove(id);
 }

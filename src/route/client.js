@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { create, findAll, findById, update } from '../service/client.js';
+import {
+  create,
+  findAll,
+  findById,
+  update,
+  remove
+} from '../service/client.js';
 
 const router = Router();
 
@@ -60,6 +66,24 @@ router.put('/:id', async (req, res) => {
     } else if (error.message === 'DUPLICATED') {
       console.warn(error);
       return res.status(409).json({ error: error.message, message: 'Client already exists with document ' + req.body.document });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'INTERNAL' });
+    }
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    await remove(req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    if (error.message === 'INVALID-DATA') {
+      console.warn(error);
+      return res.status(422).json({ error: error.message, message: error.fields });
+    } else if (error.message === 'NOT-FOUND') {
+      console.warn(error);
+      return res.status(404).json({ error: error.message, message: 'Client not found with id ' + req.params.id });
     } else {
       console.error(error);
       return res.status(500).json({ error: 'INTERNAL' });
