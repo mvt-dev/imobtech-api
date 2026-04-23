@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './lib/swagger.js';
 import clientRouter from './route/client.js';
 
 const app = express();
@@ -12,6 +14,8 @@ app.use((req, res, next) => {
 });
 
 app.get('/version', (req, res) => res.send(process.env.VERSION));
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/client', clientRouter);
 

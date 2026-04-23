@@ -12,11 +12,65 @@ import {
 const router = Router();
 
 /**
- * GET /
- * Lists clients with filtering and pagination.
- * @returns {200} Paginated list { data, total, page, page_size }
- * @returns {422} Validation error on query params
- * @returns {500} Internal server error
+ * @openapi
+ * /client:
+ *   get:
+ *     tags: [Client]
+ *     summary: List clients
+ *     description: Lists clients with filtering and pagination, ordered by name.
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [ACTIVE, INACTIVE, REMOVED]
+ *           default: ACTIVE
+ *         description: Filter by status
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [PF, PJ]
+ *         description: Filter by type
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: ILIKE search on name, document, email and phone
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: page_size
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Items per page
+ *     responses:
+ *       200:
+ *         description: Paginated list of clients
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedClients'
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', async (req, res) => {
   try {
@@ -34,11 +88,38 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * GET /:id
- * Finds a client by id.
- * @returns {200} Client object
- * @returns {404} Client not found
- * @returns {500} Internal server error
+ * @openapi
+ * /client/{id}:
+ *   get:
+ *     tags: [Client]
+ *     summary: Find client by id
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Client UUID
+ *     responses:
+ *       200:
+ *         description: Client found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Client'
+ *       404:
+ *         description: Client not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/:id', async (req, res) => {
   try {
@@ -56,12 +137,45 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * POST /
- * Creates a new client.
- * @returns {201} Created client
- * @returns {409} Duplicated document
- * @returns {422} Validation error on body
- * @returns {500} Internal server error
+ * @openapi
+ * /client:
+ *   post:
+ *     tags: [Client]
+ *     summary: Create a new client
+ *     description: Creates a client. Use type PF with CPF document or type PJ with CNPJ document.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/CreateClientPF'
+ *               - $ref: '#/components/schemas/CreateClientPJ'
+ *     responses:
+ *       201:
+ *         description: Client created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Client'
+ *       409:
+ *         description: Duplicated document
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/', async (req, res) => {
   try {
@@ -82,13 +196,59 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * PUT /:id
- * Updates an existing client.
- * @returns {200} Updated client
- * @returns {404} Client not found
- * @returns {409} Duplicated document
- * @returns {422} Validation error on body
- * @returns {500} Internal server error
+ * @openapi
+ * /client/{id}:
+ *   put:
+ *     tags: [Client]
+ *     summary: Update an existing client
+ *     description: Updates a client. Use type PF with CPF document or type PJ with CNPJ document.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Client UUID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/CreateClientPF'
+ *               - $ref: '#/components/schemas/CreateClientPJ'
+ *     responses:
+ *       200:
+ *         description: Client updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Client'
+ *       404:
+ *         description: Client not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Duplicated document
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put('/:id', async (req, res) => {
   try {
@@ -112,11 +272,36 @@ router.put('/:id', async (req, res) => {
 });
 
 /**
- * PATCH /status
- * Updates the status of multiple clients.
- * @returns {200} Updated ids and status
- * @returns {422} Validation error on body
- * @returns {500} Internal server error
+ * @openapi
+ * /client/status:
+ *   patch:
+ *     tags: [Client]
+ *     summary: Update status of multiple clients
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateStatus'
+ *     responses:
+ *       200:
+ *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UpdateStatus'
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.patch('/status', async (req, res) => {
   try {
@@ -134,12 +319,41 @@ router.patch('/status', async (req, res) => {
 });
 
 /**
- * DELETE /:id
- * Soft removes a client by setting status to REMOVED.
- * @returns {204} No content
- * @returns {404} Client not found
- * @returns {422} Validation error on id
- * @returns {500} Internal server error
+ * @openapi
+ * /client/{id}:
+ *   delete:
+ *     tags: [Client]
+ *     summary: Soft remove a client
+ *     description: Sets the client status to REMOVED.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Client UUID
+ *     responses:
+ *       204:
+ *         description: Client removed
+ *       404:
+ *         description: Client not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete('/:id', async (req, res) => {
   try {
