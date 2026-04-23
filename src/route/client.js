@@ -1,7 +1,22 @@
 import { Router } from 'express';
-import { create } from '../service/client.js';
+import { create, findById } from '../service/client.js';
 
 const router = Router();
+
+router.get('/:id', async (req, res) => {
+  try {
+    const client = await findById(req.params.id);
+    return res.status(200).json(client);
+  } catch (error) {
+    if (error.message === 'NOT-FOUND') {
+      console.warn(error);
+      return res.status(404).json({ error: error.message, message: 'Client not found with id ' + req.params.id });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'INTERNAL' });
+    }
+  }
+});
 
 router.post('/', async (req, res) => {
   try {

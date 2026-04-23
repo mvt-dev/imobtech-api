@@ -1,6 +1,11 @@
 import db from '../lib/db.js';
 import { uuid } from '../lib/utils.js';
 
+export async function findById(id) {
+  const client = await db('client').where({ id }).first();
+  return client || null;
+}
+
 export async function create(client) {
   const clientData = { ...client, id: uuid() };
   try {

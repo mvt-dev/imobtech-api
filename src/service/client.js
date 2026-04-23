@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { create as dbCreate } from '../model/client.js';
+import { create as dbCreate, findById as dbFindById } from '../model/client.js';
 
 export async function create(client) {
   const validation = z.object({
@@ -16,4 +16,12 @@ export async function create(client) {
   }
   const clientData = await dbCreate(validation.data);
   return clientData;
+}
+
+export async function findById(id) {
+  const client = await dbFindById(id);
+  if (!client) {
+    throw new Error('NOT-FOUND');
+  }
+  return client;
 }
