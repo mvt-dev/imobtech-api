@@ -1,5 +1,7 @@
 import db from '../lib/db.js';
 import { uuid } from '../lib/utils.js';
+import { CLIENT_STATUS } from '../constant/client.js';
+import { ERROR } from '../constant/error.js';
 
 export async function findAll(filters) {
   const query = db('client').where('status', filters.status);
@@ -25,14 +27,14 @@ export async function create(client) {
   const clientData = {
     ...client,
     id: uuid(),
-    status: client.status || 'ACTIVE',
+    status: client.status || CLIENT_STATUS.ACTIVE,
     created_at: new Date(),
   };
   try {
     await db('client').insert(clientData);
   } catch (error) {
     if (error.code === '23505') {
-      const _error = new Error('DUPLICATED');
+      const _error = new Error(ERROR.DUPLICATED);
       _error.details = error.message;
       throw _error;
     } else {
@@ -49,10 +51,10 @@ export async function update(client) {
   };
   try {
     const returning = await db('client').where({ id: client.id }).update(clientData);
-    if (!returning) throw new Error('NOT-FOUND');
+    if (!returning) throw new Error(ERROR.NOT_FOUND);
   } catch (error) {
     if (error.code === '23505') {
-      const _error = new Error('DUPLICATED');
+      const _error = new Error(ERROR.DUPLICATED);
       _error.details = error.message;
       throw _error;
     } else {
@@ -71,8 +73,8 @@ export async function updateStatus(clients) {
 
 export async function remove(id) {
   const returning = await db('client').where({ id }).update({
-    status: 'REMOVED',
+    status: CLIENT_STATUS.REMOVED,
     updated_at: new Date(),
   });
-  if (!returning) throw new Error('NOT-FOUND');
+  if (!returning) throw new Error(ERROR.NOT_FOUND);
 }
