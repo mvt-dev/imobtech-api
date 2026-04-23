@@ -1,8 +1,19 @@
 import db from '../lib/db.js';
 import { uuid } from '../lib/utils.js';
 
-export async function findAll() {
-  return db('client').select('*');
+export async function findAll(filters) {
+  const query = db('client').where('status', filters.status);
+  if (filters.type) {
+    query.where('type', filters.type);
+  }
+  if (filters.search) {
+    const search = `%${filters.search}%`;
+    query.whereILike('name', search)
+      .orWhereILike('document', search)
+      .orWhereILike('email', search)
+      .orWhereILike('phone', search);
+  }
+  return query;
 }
 
 export async function findById(id) {

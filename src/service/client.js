@@ -14,8 +14,18 @@ const baseClientFields = {
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 };
 
-export async function findAll() {
-  return dbFindAll();
+export async function findAll(query) {
+  const validation = z.object({
+    status: z.enum(['ACTIVE', 'INACTIVE', 'REMOVED']).default('ACTIVE'),
+    type: z.enum(['PF', 'PJ']).optional(),
+    search: z.string().trim().optional(),
+  }).safeParse(query);
+  if (!validation.success) {
+    const error = new Error('INVALID-DATA');
+    error.fields = z.flattenError(validation.error).fieldErrors;
+    throw error;
+  }
+  return dbFindAll(validation.data);
 }
 
 export async function findById(id) {

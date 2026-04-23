@@ -11,11 +11,16 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
-    const clients = await findAll();
+    const clients = await findAll(req.query);
     return res.status(200).json(clients);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'INTERNAL' });
+    if (error.message === 'INVALID-DATA') {
+      console.warn(error);
+      return res.status(422).json({ error: error.message, message: error.fields });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'INTERNAL' });
+    }
   }
 });
 
