@@ -14,7 +14,7 @@ export async function create(client) {
   const clientData = {
     ...client,
     id: uuid(),
-    status: 'ACTIVE',
+    status: client.status || 'ACTIVE',
     created_at: new Date(),
   };
   try {

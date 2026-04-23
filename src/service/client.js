@@ -11,6 +11,7 @@ const baseClientFields = {
   name: z.string().trim().min(1, 'Name is required'),
   email: z.email('Email is invalid').optional(),
   phone: z.string().regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, 'Phone is invalid').optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 };
 
 export async function findAll() {
