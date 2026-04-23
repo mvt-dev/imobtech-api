@@ -1,0 +1,28 @@
+{
+  "name": "imobtech-api",
+  "version": "1.0.0",
+  "description": "ImobTech REST API",
+  "homepage": "https://github.com/mvt-dev/imobtech-api#readme",
+  "bugs": {
+    "url": "https://github.com/mvt-dev/imobtech-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvt-dev/imobtech-api.git"
+  },
+  "license": "ISC",
+  "author": "Matheus Vieira",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
