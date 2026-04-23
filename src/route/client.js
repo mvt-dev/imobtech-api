@@ -1,7 +1,17 @@
 import { Router } from 'express';
-import { create, findById } from '../service/client.js';
+import { create, findAll, findById } from '../service/client.js';
 
 const router = Router();
+
+router.get('/', async (req, res) => {
+  try {
+    const clients = await findAll();
+    return res.status(200).json(clients);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'INTERNAL' });
+  }
+});
 
 router.get('/:id', async (req, res) => {
   try {

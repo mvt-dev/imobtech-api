@@ -1,6 +1,10 @@
 import db from '../lib/db.js';
 import { uuid } from '../lib/utils.js';
 
+export async function findAll() {
+  return db('client').select('*');
+}
+
 export async function findById(id) {
   const client = await db('client').where({ id }).first();
   return client || null;
