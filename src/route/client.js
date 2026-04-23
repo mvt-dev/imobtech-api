@@ -11,6 +11,13 @@ import {
 
 const router = Router();
 
+/**
+ * GET /
+ * Lists clients with filtering and pagination.
+ * @returns {200} Paginated list { data, total, page, page_size }
+ * @returns {422} Validation error on query params
+ * @returns {500} Internal server error
+ */
 router.get('/', async (req, res) => {
   try {
     const clients = await findAll(req.query);
@@ -26,6 +33,13 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * GET /:id
+ * Finds a client by id.
+ * @returns {200} Client object
+ * @returns {404} Client not found
+ * @returns {500} Internal server error
+ */
 router.get('/:id', async (req, res) => {
   try {
     const client = await findById(req.params.id);
@@ -41,6 +55,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+/**
+ * POST /
+ * Creates a new client.
+ * @returns {201} Created client
+ * @returns {409} Duplicated document
+ * @returns {422} Validation error on body
+ * @returns {500} Internal server error
+ */
 router.post('/', async (req, res) => {
   try {
     const client = await create(req.body);
@@ -59,6 +81,15 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * PUT /:id
+ * Updates an existing client.
+ * @returns {200} Updated client
+ * @returns {404} Client not found
+ * @returns {409} Duplicated document
+ * @returns {422} Validation error on body
+ * @returns {500} Internal server error
+ */
 router.put('/:id', async (req, res) => {
   try {
     const client = await update({ ...req.params, ...req.body });
@@ -80,6 +111,13 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+/**
+ * PATCH /status
+ * Updates the status of multiple clients.
+ * @returns {200} Updated ids and status
+ * @returns {422} Validation error on body
+ * @returns {500} Internal server error
+ */
 router.patch('/status', async (req, res) => {
   try {
     const updated = await updateStatus(req.body);
@@ -95,6 +133,14 @@ router.patch('/status', async (req, res) => {
   }
 });
 
+/**
+ * DELETE /:id
+ * Soft removes a client by setting status to REMOVED.
+ * @returns {204} No content
+ * @returns {404} Client not found
+ * @returns {422} Validation error on id
+ * @returns {500} Internal server error
+ */
 router.delete('/:id', async (req, res) => {
   try {
     await remove(req.params.id);

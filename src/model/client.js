@@ -3,6 +3,16 @@ import { uuid } from '../lib/utils.js';
 import { CLIENT_STATUS } from '../constant/client.js';
 import { ERROR } from '../constant/error.js';
 
+/**
+ * Lists clients with filtering and pagination.
+ * @param {Object} filters
+ * @param {string} filters.status - Client status (ACTIVE, INACTIVE, REMOVED)
+ * @param {string} [filters.type] - Client type (PF, PJ)
+ * @param {string} [filters.search] - ILIKE search on name, document, email and phone
+ * @param {number} filters.page - Page number (1-indexed)
+ * @param {number} filters.page_size - Items per page
+ * @returns {Promise<{data: Object[], total: number, page: number, page_size: number}>}
+ */
 export async function findAll(filters) {
   const query = db('client').where('status', filters.status);
   if (filters.type) {
@@ -22,11 +32,28 @@ export async function findAll(filters) {
   return { data, total, page: filters.page, page_size: filters.page_size };
 }
 
+/**
+ * Finds a client by id.
+ * @param {string} id - Client UUID
+ * @returns {Promise<Object|null>} Client object or null if not found
+ */
 export async function findById(id) {
   const client = await db('client').where({ id }).first();
   return client || null;
 }
 
+/**
+ * Inserts a new client.
+ * @param {Object} client
+ * @param {string} client.type - PF or PJ
+ * @param {string} client.document - CPF or CNPJ with mask
+ * @param {string} client.name - Client name
+ * @param {string} [client.email] - Client email
+ * @param {string} [client.phone] - Client phone with mask (XX) XXXXX-XXXX
+ * @param {string} [client.status] - Initial status (defaults to ACTIVE)
+ * @returns {Promise<Object>} Created client with generated id, status and created_at
+ * @throws {Error} DUPLICATED - When document already exists
+ */
 export async function create(client) {
   const clientData = {
     ...client,
@@ -48,6 +75,20 @@ export async function create(client) {
   return clientData;
 }
 
+/**
+ * Updates an existing client.
+ * @param {Object} client
+ * @param {string} client.id - Client UUID
+ * @param {string} client.type - PF or PJ
+ * @param {string} client.document - CPF or CNPJ with mask
+ * @param {string} client.name - Client name
+ * @param {string} [client.email] - Client email
+ * @param {string} [client.phone] - Client phone with mask (XX) XXXXX-XXXX
+ * @param {string} [client.status] - ACTIVE or INACTIVE
+ * @returns {Promise<Object>} Updated client with updated_at
+ * @throws {Error} NOT-FOUND - When client does not exist
+ * @throws {Error} DUPLICATED - When document already exists
+ */
 export async function update(client) {
   const clientData = {
     ...client,
@@ -68,6 +109,13 @@ export async function update(client) {
   return clientData;
 }
 
+/**
+ * Updates the status of multiple clients.
+ * @param {Object} clients
+ * @param {string[]} clients.ids - Array of client UUIDs
+ * @param {string} clients.status - New status (ACTIVE, INACTIVE, REMOVED)
+ * @returns {Promise<number>} Number of affected rows
+ */
 export async function updateStatus(clients) {
   return db('client').whereIn('id', clients.ids).update({
     status: clients.status,
@@ -75,6 +123,11 @@ export async function updateStatus(clients) {
   });
 }
 
+/**
+ * Soft removes a client by setting status to REMOVED.
+ * @param {string} id - Client UUID
+ * @throws {Error} NOT-FOUND - When client does not exist
+ */
 export async function remove(id) {
   const returning = await db('client').where({ id }).update({
     status: CLIENT_STATUS.REMOVED,
