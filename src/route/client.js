@@ -4,6 +4,7 @@ import {
   findAll,
   findById,
   update,
+  updateStatus,
   remove
 } from '../service/client.js';
 
@@ -71,6 +72,21 @@ router.put('/:id', async (req, res) => {
     } else if (error.message === 'DUPLICATED') {
       console.warn(error);
       return res.status(409).json({ error: error.message, message: 'Client already exists with document ' + req.body.document });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'INTERNAL' });
+    }
+  }
+});
+
+router.patch('/status', async (req, res) => {
+  try {
+    const updated = await updateStatus(req.body);
+    return res.status(200).json(updated);
+  } catch (error) {
+    if (error.message === 'INVALID-DATA') {
+      console.warn(error);
+      return res.status(422).json({ error: error.message, message: error.fields });
     } else {
       console.error(error);
       return res.status(500).json({ error: 'INTERNAL' });

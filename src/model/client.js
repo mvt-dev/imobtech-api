@@ -62,6 +62,13 @@ export async function update(client) {
   return clientData;
 }
 
+export async function updateStatus(clients) {
+  return db('client').whereIn('id', clients.ids).update({
+    status: clients.status,
+    updated_at: new Date(),
+  });
+}
+
 export async function remove(id) {
   const returning = await db('client').where({ id }).update({
     status: 'REMOVED',

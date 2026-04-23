@@ -5,6 +5,7 @@ import {
   create as dbCreate,
   update as dbUpdate,
   remove as dbRemove,
+  updateStatus as dbUpdateStatus,
 } from '../model/client.js';
 
 const baseClientFields = {
@@ -80,6 +81,20 @@ export async function update(client) {
   }
   const clientData = await dbUpdate(validation.data);
   return clientData;
+}
+
+export async function updateStatus(clients) {
+  const validation = z.object({
+    ids: z.array(z.uuid()).min(1, 'At least one id is required'),
+    status: z.enum(['ACTIVE', 'INACTIVE', 'REMOVED']),
+  }).safeParse(clients);
+  if (!validation.success) {
+    const error = new Error('INVALID-DATA');
+    error.fields = z.flattenError(validation.error).fieldErrors;
+    throw error;
+  }
+  await dbUpdateStatus(validation.data);
+  return validation.data;
 }
 
 export async function remove(id) {
