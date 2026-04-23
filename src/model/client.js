@@ -11,13 +11,34 @@ export async function findById(id) {
 }
 
 export async function create(client) {
-  const clientData = { ...client, id: uuid() };
+  const clientData = {
+    ...client,
+    id: uuid(),
+    status: 'ACTIVE',
+    created_at: new Date(),
+  };
   try {
-    await db('client').insert({
-      ...clientData,
-      status: 'ACTIVE',
-      created_at: db.fn.now(),
-    });
+    await db('client').insert(clientData);
+  } catch (error) {
+    if (error.code === '23505') {
+      const _error = new Error('DUPLICATED');
+      _error.details = error.message;
+      throw _error;
+    } else {
+      throw error;
+    }
+  }
+  return clientData;
+}
+
+export async function update(client) {
+  const clientData = {
+    ...client,
+    updated_at: new Date(),
+  };
+  try {
+    const returning = await db('client').where({ id: client.id }).update(clientData);
+    if (!returning) throw new Error('NOT-FOUND');
   } catch (error) {
     if (error.code === '23505') {
       const _error = new Error('DUPLICATED');

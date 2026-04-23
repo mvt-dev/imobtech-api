@@ -4,7 +4,12 @@ import clientRouter from './route/client.js';
 
 const app = express();
 
-app.use(express.json()); 
+app.use(express.json());
+
+app.use((req, res, next) => {
+  console.debug(req.method, req.url);
+  next();
+});
 
 app.get('/version', (req, res) => res.send(process.env.VERSION));
 
